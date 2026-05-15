@@ -20,7 +20,7 @@ PaintRenderPass::PaintRenderPass(int width, int height, Renderer& renderer, std:
     m_paint = std::make_shared<bool>(false);
     m_mirror = std::make_shared<int>(0);
 
-    //init shaderprograms
+    //init shader programs
     //std::cout << "hit init" << std::endl;
     InitHitShaderProgram(renderer);
 

@@ -32,6 +32,7 @@ SceneViewerApplication::SceneViewerApplication()
 {
     // Use compute else use Geometry shader, will work on lower open gl version, but can be harder on integrated graphics cards.
     m_use_compute = true;
+    
 }
 
 void SceneViewerApplication::Initialize()
@@ -242,7 +243,6 @@ void SceneViewerApplication::InitializeModels()
     m_skyboxTexture->GetParameter(TextureObject::ParameterFloat::MaxLod, maxLod);
     TextureCubemapObject::Unbind();
 
-    //m_defaultMaterial->SetUniformValue("AmbientColor", glm::vec3(0.25f)); <- I think this was for blinn-phong...
 
     m_defaultMaterial->SetUniformValue("EnvironmentTexture", m_skyboxTexture);
     m_defaultMaterial->SetUniformValue("EnvironmentMaxLod", maxLod);
@@ -275,8 +275,7 @@ void SceneViewerApplication::InitializeModels()
     m_headModel = loader.LoadShared(headPath);
     m_scene.AddSceneNode(std::make_shared<SceneModel>("thing", m_headModel));
 
-    // Add 'Extra Textures'
-
+    // Add 'Extra Textures's
     // PaintTexture is an empty texture that gets painted onto in the PaintRenderPass
     ShaderProgram::Location paintLocation = m_headModel->GetMaterial(0).GetShaderProgram()->GetUniformLocation("PaintTexture");
 
