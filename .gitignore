@@ -44,6 +44,19 @@ build/
 Build/
 build-*/
 
+# build directories
+out*
+build*
+
+# IDE config directories
+.vs
+.vscode
+.idea
+
+# config files
+*.ini
+
+
 # CMake generated files
 CMakeFiles/
 CMakeCache.txt

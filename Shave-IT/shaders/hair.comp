@@ -1,0 +1,162 @@
+#version 430
+
+layout(local_size_x = 64) in;
+
+struct Strand
+{
+    vec3 p0;
+    vec3 p1;
+    vec3 p2;
+    vec3 p3;
+
+    float seed;
+    float grow;
+};
+
+layout(std430, binding = 0) buffer StrandBuffer
+{
+    Strand strands[];
+};
+
+layout(std430, binding = 1) buffer VertexBuffer
+{
+    float data[];
+};
+
+layout(std430, binding = 2) buffer IndexBuffer {
+    uint indices[];
+};
+
+layout(std430, binding = 3) buffer CounterBuffer {
+    uint count;
+};
+
+
+uniform sampler2D HairTexture;
+uniform sampler2D PaintTexture;
+
+uniform int triangleCount;
+uniform int strandsPerTriangle;
+
+//deterministic seudo random courtesy of:
+// Author @patriciogv - 2015
+// http://patriciogonzalezvivo.com
+// https://thebookofshaders.com/10/
+float random(vec2 st)
+{
+    return fract(sin(dot(st, vec2(12.9898,78.233))) * 43758.5453);
+}
+
+// because there apparently is some sort of missmatch between v 330 and 430, where 430 "pads" the vectors
+// so in lieu of a 1:1 struct, treat it as a list of floats where the index spacing is 14 i.e. 56/4 so:
+// * 14; + 0  for position, + 3 for normal, + 6 for tangent, + 9 for bitangent, +12 for texcoord.
+vec3 fromData(uint index)
+{
+    return vec3(
+        data[index + 0],
+        data[index + 1],
+        data[index + 2]
+    );
+}
+uint getPosition(uint index)
+{
+    return index * 14;
+}
+uint getNormal(uint index){
+    return index * 14 + 3;
+}
+uint getUv(uint index){
+    return index * 14 + 12;
+}
+void main()
+{
+    uint triangle = gl_GlobalInvocationID.x;
+    if (triangle * 3 + 2 >= indices.length()) return;
+
+    // indicies hold triangles i.e. p0, p1, p2 | p3, p4, p5 | ...
+    uint i0 = indices[triangle * 3 + 0];
+    uint i1 = indices[triangle * 3 + 1];
+    uint i2 = indices[triangle * 3 + 2];
+    
+    vec3 p0 = fromData(getPosition(i0));
+    vec3 p1 = fromData(getPosition(i1));
+    vec3 p2 = fromData(getPosition(i2));
+
+    vec3 n0 = fromData(getNormal(i0));
+    vec3 n1 = fromData(getNormal(i1));
+    vec3 n2 = fromData(getNormal(i2));
+
+    vec2 uv0 = fromData(getUv(i0)).xy;
+    vec2 uv1 = fromData(getUv(i1)).xy;
+    vec2 uv2 = fromData(getUv(i2)).xy;
+
+    float area = length(cross(p1 - p0, p2 - p0))/2;
+    uint hairprsquareunit = 120000;
+
+    uint hairToSpawn = int(ceil(hairprsquareunit * area));
+
+    if (length( texture(HairTexture, uv0).rg + texture(HairTexture, uv1).rg + texture(HairTexture, uv2).rg) < 0.01) return;
+
+    for (int s = 0; s < hairToSpawn; s++)
+    {
+        
+        uint index = atomicAdd(count, 1);
+        //construct a seudo randoms for getting a baycentric point
+        float r1 = random(uv0 + float(s));
+        float r2 = random(uv1 + float(s) * 2.0);
+
+        float u = r1;
+        float v = r2 * (1 - u);
+        float w = 1.0 - u - v;
+
+        //use the points to construct a "random" point on the triangle and get pos, normal and uv
+        vec3 pos = p0*u + p1*v + p2*w;
+        vec3 normal = n0*u + n1*v + n2*w;
+        vec2 uv  = uv0*u + uv1*v + uv2*w;
+
+        vec2 hairMask = texture(HairTexture, uv).rg;
+        vec2 hairGrow = texture(PaintTexture, uv).rg;
+        
+        // if the point isn't on the mask it will never grow
+        if (hairMask.g == 0 && hairMask.r == 0) continue;
+
+        if (length(hairGrow * hairMask) == 0) {
+            strands[index].p0 = vec3(0);
+            strands[index].p1 = vec3(0);
+            strands[index].p2 = vec3(0);
+            strands[index].p3 = vec3(0);
+
+            strands[index].seed = 0;
+            strands[index].grow = 0;
+            continue;
+        }
+
+        float mask = hairMask.r;
+        float grow = hairGrow.r;
+
+        if (mask * grow < hairMask.g * hairGrow.g){
+            mask = hairMask.g;
+            grow = hairGrow.g;
+        }
+
+
+        float seed = r1;
+        float height = mix(0.48, 0.5, seed);
+
+        vec3 gravity = vec3(0,-1.0,0);
+
+        vec3 p0c = pos;
+        vec3 p1c = pos + normal * (height * 0.3);
+        vec3 p2c = pos + normalize(normal + gravity * 0.5) * (height * 0.6);
+        vec3 p3c = pos + normalize(normal + gravity) * height;
+
+
+        strands[index].p0 = p0c;
+        strands[index].p1 = p1c;
+        strands[index].p2 = p2c;
+        strands[index].p3 = p3c;
+
+        strands[index].seed = seed;
+        strands[index].grow = grow;
+    }
+}
