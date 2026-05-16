@@ -2,7 +2,7 @@
 virtual shaving program in cpp and open gl
 .exe file in /Shave-IT/
 
-in sceneViewerApplication.cpp line 34 set m_use_compute to true or false to switch betweeb compute and geometry shader pipeline, respectively.
+in sceneViewerApplication.cpp constructor set m_use_compute to true or false to switch between compute and geometry shader pipeline, respectively.
 
 contols:
 m           :   mirror shave
