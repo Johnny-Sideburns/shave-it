@@ -303,7 +303,7 @@ void PaintRenderPass::SetBrushWorldPos(Renderer& renderer)
     const Camera& camera = renderer.GetCurrentCamera();
     RenderGeneric(renderer, m_depthFramebuffer, m_hitShaderProgramPtr);
 
-    // depth get mouse pos    
+    //get mouse position in pixel terms (with y flipped)
     float x = m_mousePosition->x;
     float y = m_mousePosition->y;
     
@@ -312,7 +312,6 @@ void PaintRenderPass::SetBrushWorldPos(Renderer& renderer)
 
     float depth;
     glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
-
 
     // NDC
     float ndcX = (2.0f * x) / m_width - 1.0f;

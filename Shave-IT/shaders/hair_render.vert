@@ -72,5 +72,6 @@ void main()
     WorldPosition = worldpos;
     WorldNormal = normalize(cross(right,  dir));
     TexCoord = vec2(mix(0.8,0.9, s.seed), 1-t);
+    //TexCoord = vec2(mix(0.85,0.92, s.seed), 1.0-t);
     gl_Position = ViewProjMatrix * vec4(worldpos, 1.0);
 }

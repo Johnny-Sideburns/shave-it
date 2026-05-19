@@ -49,7 +49,7 @@ float random(vec2 st)
 
 // because there apparently is some sort of missmatch between v 330 and 430, where 430 "pads" the vectors
 // so in lieu of a 1:1 struct, treat it as a list of floats where the index spacing is 14 i.e. 56/4 so:
-// * 14; + 0  for position, + 3 for normal, + 6 for tangent, + 9 for bitangent, +12 for texcoord.
+// * 14, + 0  for position, + 3 for normal, + 6 for tangent, + 9 for bitangent, +12 for texcoord.
 vec3 fromData(uint index)
 {
     return vec3(
@@ -142,12 +142,12 @@ void main()
 
         float seed = r1;
         float height = mix(0.48, 0.5, seed);
-
+        vec3 bendDir = normalize(cross(normal, vec3(0,1,0)));
         vec3 gravity = vec3(0,-1.0,0);
 
         vec3 p0c = pos;
         vec3 p1c = pos + normal * (height * 0.3);
-        vec3 p2c = pos + normalize(normal + gravity * 0.5) * (height * 0.6);
+        vec3 p2c = pos + normalize(normal + gravity * 0.5) * (height * 0.6) + bendDir * 0.05 * r1;
         vec3 p3c = pos + normalize(normal + gravity) * height;
 
 

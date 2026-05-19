@@ -121,7 +121,7 @@ void HairRenderPass::Render()
     {
         // Set the renderstates
         renderer.SetLightingRenderStates(first);
-        // Draw
+        // Draw instanced
         glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, m_segments * 2, m_strandCount);
 
         first = false;
