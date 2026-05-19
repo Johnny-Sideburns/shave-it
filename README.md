@@ -4,14 +4,17 @@ virtual shaving program in cpp and open gl
 
 in sceneViewerApplication.cpp constructor set m_use_compute to true or false to switch between compute and geometry shader pipeline, respectively.
 
-contols:
-m           :   mirror shave
-0-9         :   set shave level
-+/-         :   additional shaving precision
-mousewheel  :   shave radius
-b           :   grow beard
-h           :   grow hair
+controls:
+
+    left mouse  : shave
+    m           : mirror shave
+    0-9         : set shave level
+    +/-         : additional shaving precision
+    mousewheel  : shave radius
+    b           : grow beard
+    h           : grow hair
 
 space to activate/deactivate camera controls:
-wasd : movement
-mouselook
+
+    wasd        : movement
+    mousexy     : look

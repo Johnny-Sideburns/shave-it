@@ -53,7 +53,7 @@ void HairRenderPass::InitShader(Renderer& renderer)
     fragmentShaderPaths.push_back("shaders/utils.glsl");
     fragmentShaderPaths.push_back("shaders/lambert-ggx.glsl");
     fragmentShaderPaths.push_back("shaders/lighting.glsl");
-    fragmentShaderPaths.push_back("shaders/hair_render.frag");
+    fragmentShaderPaths.push_back("shaders/default_pbr.frag");
     Shader fragmentShader = ShaderLoader(Shader::FragmentShader).Load(fragmentShaderPaths);
 
     m_shaderProgramPtr = std::make_shared<ShaderProgram>();
