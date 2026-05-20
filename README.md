@@ -17,4 +17,4 @@ controls:
 space to activate/deactivate camera controls:
 
     wasd        : movement
-    mousexy     : look
+    mouse       : look
